@@ -1,6 +1,13 @@
 library(tidyverse)
+
 setwd(dir = "~/Desktop/Chapter 3 In Vitro/In Vitro Tnseq/")
 
+
+### Read in TraDIS output files and make an ins_index summary table.
+
+
+
+### Readin ins_index summary table.
 ES <- read_tsv(file = "ES.ins_indx.tsv", trim_ws = T)
 ES$state <- "NE"
 ES$state <- replace(x = ES$state,
