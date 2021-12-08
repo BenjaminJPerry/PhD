@@ -4,6 +4,8 @@ setwd("~/Desktop/PhD/")
 set.seed(seed = 1953)
 
 library(tidyverse)
+library(cowplot)
+library(ggpubr)
 
 readTradis <- function(wrkingdir = "") {
   cwd<-getwd()
@@ -89,21 +91,21 @@ ES$ES_state <- replace(x = ES$ES_state,
                     ES$NS_ii <= 0.001 & ES$WT_ii <= (0.048*2) & ES$WT_ii >= 0.048,
                     "NS-ES")
 # Plot the correlated insertion indices
-ES %>% ggplot(aes(x=NS_ii, y=WT_ii, color=ES_state, alpha=0.1)) + 
+ES_plot <- ES %>% ggplot(aes(x=NS_ii, y=WT_ii, color=ES_state, alpha=0.1)) + 
   geom_point() + 
   theme_minimal(base_size = 20) + 
   guides(colour = guide_legend(override.aes = list(size=8))) +
   geom_hline(yintercept = 0.048) +
-  geom_vline(xintercept = 0.05)
-ggsave("results/chapter 3 in vitro/ES.ins_index.png", width = 12, height = 8)
+  geom_vline(xintercept = 0.05) + xlim(0,0.3) + ylim(0,0.3)
+ggsave(plot = ES_plot, "results/chapter 3 in vitro/ES.ins_index.png", width = 12, height = 8)
 
-ES %>% ggplot(aes(x=NS_ii, y=WT_ii, color=ES_state, alpha=0.1)) + 
+ES_plot_zoom <- ES %>% ggplot(aes(x=NS_ii, y=WT_ii, color=ES_state, alpha=0.1)) + 
   geom_point() + 
   theme_minimal(base_size = 20) + 
   guides(colour = guide_legend(override.aes = list(size=8))) +
   geom_hline(yintercept = 0.048) +
-  geom_vline(xintercept = 0.05) + xlim(0,0.175) + ylim(0,0.175)
-ggsave("results/chapter 3 in vitro/ES.ins_index.zoom.png", width = 12, height = 8)
+  geom_vline(xintercept = 0.05) + xlim(0,0.1) + ylim(0,0.1)
+ggsave(plot = ES_plot_zoom, "results/chapter 3 in vitro/ES.ins_index.zoom.png", width = 12, height = 8)
 
 ### 4. Update the traDIS insertion index summary tables for the conditionally essential states using similar rules to section 3. ###
 
@@ -142,13 +144,14 @@ INVITRO$TY_state <- replace(x = INVITRO$TY_state,
 INVITRO <- INVITRO %>% mutate(TY_state = as.factor(TY_state))
 INVITRO$TY_state <- factor(INVITRO$TY_state, levels = c("TY-ES", "TY-GD", "NE", "NS-TY-ES", "WT-TY-ES"))
 
-INVITRO %>% ggplot(aes(x=NSTY_ii, y=WTTY_ii, color=TY_state, alpha=0.1)) + 
+TY_plot <- INVITRO %>% ggplot(aes(x=NSTY_ii, y=WTTY_ii, color=TY_state, alpha=0.1)) + 
   geom_point() + 
   theme_minimal(base_size = 20) + 
   guides(colour = guide_legend(override.aes = list(size=8))) +
   geom_hline(yintercept = 0.018) +
-  geom_vline(xintercept = 0.016) + xlim(0,0.175) + ylim(0,0.175)
-ggsave("results/chapter 3 in vitro/TY.ins_index.png", width = 12, height = 8)
+  geom_vline(xintercept = 0.016) + xlim(0,0.1) + ylim(0,0.1)
+
+ggsave(plot = TY_plot, "results/chapter 3 in vitro/TY.ins_index.png", width = 12, height = 8)
 
 ###    GR States - GR_states
 INVITRO$GR_state <- "NE"
@@ -178,14 +181,14 @@ INVITRO$GR_state <- replace(x = INVITRO$GR_state,
 INVITRO <- INVITRO %>% mutate(GR_state = as.factor(GR_state))
 INVITRO$GR_state <- factor(INVITRO$GR_state, levels = c("GR-ES", "GR-GD", "NE", "NS-GR-ES", "WT-GR-ES"))
 
-INVITRO %>% ggplot(aes(x=NSGR_ii, y=WTGR_ii, color=GR_state, alpha=0.1)) + 
+GR_plot <- INVITRO %>% ggplot(aes(x=NSGR_ii, y=WTGR_ii, color=GR_state, alpha=0.1)) + 
   geom_point() + 
   theme_minimal(base_size = 20) + 
   guides(colour = guide_legend(override.aes = list(size=8))) +
   geom_hline(yintercept = 0.012) +
-  geom_vline(xintercept = 0.015) + xlim(0,0.175) + ylim(0,0.175)
+  geom_vline(xintercept = 0.015) + xlim(0,0.1) + ylim(0,0.1)
 
-ggsave("results/chapter 3 in vitro/GR.ins_index.png", width = 12, height = 8)
+ggsave(plot = GR_plot, "results/chapter 3 in vitro/GR.ins_index.png", width = 12, height = 8)
 
 ###    TB States - TB_states
 INVITRO$TB_state <- "NE"
@@ -216,11 +219,80 @@ INVITRO$TB_state <- replace(x = INVITRO$TB_state,
 INVITRO <- INVITRO %>% mutate(TB_state = as.factor(TB_state))
 INVITRO$TB_state <- factor(INVITRO$TB_state, levels = c("TB-ES", "TB-GD", "NE", "NS-TB-ES", "WT-TB-ES"))
 
-INVITRO %>% ggplot(aes(x=NSTB_ii, y=WTTB_ii, color=TB_state, alpha=0.1)) + 
+TB_plot <- INVITRO %>% ggplot(aes(x=NSTB_ii, y=WTTB_ii, color=TB_state, alpha=0.1)) + 
   geom_point() + 
   theme_minimal(base_size = 20) + 
   guides(colour = guide_legend(override.aes = list(size=8))) +
   geom_hline(yintercept = 0.015) +
-  geom_vline(xintercept = 0.017) + xlim(0,0.175) + ylim(0,0.175)
+  geom_vline(xintercept = 0.017) + xlim(0,0.1) + ylim(0,0.1)
 
-ggsave("results/chapter 3 in vitro/TB.ins_index.png", width = 12, height = 8)
+ggsave(plot = TB_plot, "results/chapter 3 in vitro/TB.ins_index.png", width = 12, height = 8)
+
+
+### Merge the ES and INVITRO dataframes into CHPT3 dataframe ###
+CHPT3 <- ES %>% select(locus_tag, NS_ii, WT_ii, ES_state)
+CHPT3 <- left_join(INVITRO, CHPT3, "locus_tag")
+
+### 5. Update the essentiality states of ICE genes using reduced ii thresholds
+
+# ICE Essentiality States
+
+ICE$state <- "NE"
+
+ICE$state <- replace(x = ICE$state,
+                     ICE$ES <= 0.03,
+                     "ICE-ES")
+ICE$state <- replace(x = ICE$state,
+                     ICE$ES > 0.03 & ICE$GR == 0,
+                     "ICE-GR-ES")
+ICE$state <- replace(x = ICE$state,
+                     ICE$ES > 0.03 & ICE$TY == 0,
+                     "ICE-TY-ES")
+ICE$state <- replace(x = ICE$state,
+                     ICE$ES > 0.03 & ICE$GR == 0 & ICE$TY ==0,
+                     "ICE-AGAR-ES")
+ICE$state <- replace(x = ICE$state,
+                     ICE$ES > 0.03 & ICE$TB == 0,
+                     "ICE-TB-ES")
+
+write_tsv(ICE, "../ICE in vitro updated states.txt")
+
+ICE <- ICE %>% mutate(state = as.factor(state))
+ICE$state <- factor(ICE$state, levels = c("ICE-ES", "ICE-AGAR-ES", "NE", "ICE-TB-ES", "ICE-GR-ES"))
+
+ICE %>% ggplot(aes(x=ES, y=TY, alpha=0.1, color=state)) + 
+  geom_point() + 
+  theme_minimal(base_size = 20) + 
+  guides(colour = guide_legend(override.aes = list(size=8))) +
+  geom_vline(xintercept = 0.03) +
+  ylim(0,0.125) #+
+ggsave("ICE.TY.ins_index.png", width = 12, height = 8) +
+  ggsave("ICE.TY.ins_index.svg", width = 12, height = 8)
+
+ICE %>% ggplot(aes(x=ES, y=TB, alpha=0.1, color=state)) + 
+  geom_point() + 
+  theme_minimal(base_size = 20) + 
+  guides(colour = guide_legend(override.aes = list(size=8))) +
+  geom_vline(xintercept = 0.03) +
+  ylim(0,0.125) #+
+ggsave("ICE.TB.ins_index.png", width = 12, height = 8) +
+  ggsave("ICE.TB.ins_index.svg", width = 12, height = 8)
+
+ICE %>% ggplot(aes(x=ES, y=GR, alpha=0.1, color=state)) + 
+  geom_point() + 
+  theme_minimal(base_size = 20) + 
+  guides(colour = guide_legend(override.aes = list(size=8))) +
+  geom_vline(xintercept = 0.03) +
+  ylim(0,0.125) #+
+ggsave("ICE.GR.ins_index.png", width = 12, height = 8) +
+  ggsave("ICE.GR.ins_index.svg", width = 12, height = 8)
+
+### Summary Plots ###
+invitro_plot <- ggarrange(TB_plot, GR_plot, TY_plot, nrow = 1, align = "h", legend = "none")
+invitro_plot
+ggsave(plot = invitro_plot, "results/chapter 3 in vitro/invitro.ins_index.png", bg = "white")
+
+essential_plot <- ggarrange(ES_plot, ES_plot_zoom, align = "h", legend = "none")
+essential_plot
+ggsave(plot = essential_plot, "results/chapter 3 in vitro/essential.ins_index.png", bg = "white")
+
