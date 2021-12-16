@@ -1,3 +1,29 @@
+# TODO: Essentiality Function ####
+# tnseq <- function(locus_tags=NULL,NS_tnseq=NULL, WT_tnseq=NULL, NS_TraDIS_thresh="", WT_TraDIS_thresh="", length_perc=95, ES_diviser=2, GD_multiple=2){
+#   
+#   # Set default stares to NE
+#   states$locus_tags <- locus_tags
+#   states$states <- "NE"
+#   # Layer on the states 
+#   
+#   # ii in NS and WT below 1/2 the TraDIS thresholds
+#   ES$ES_state <- replace(x = ES$ES_state, ES$NS_ii < 0.05 & ES$WT_ii < 0.048, "CORE-ES")
+#   # ii in NS less than TraDIS and 2x WT TraDIS thresholds
+#   ES$ES_state <- replace(x = ES$ES_state, ES$NS_ii < 0.05 & ES$WT_ii > (0.048*2), "NS-ES")
+#   # ii in WT less than TraDIS and 2x NS TraDIS thresholds
+#   ES$ES_state <- replace(x = ES$ES_state, ES$NS_ii > (0.05*2) & ES$WT_ii < 0.048, "WT-ES")
+#   # 
+#   ES$ES_state <- replace(x = ES$ES_state, ES$NS_ii < 0.05 & ES$WT_ii <= (0.048*2) & ES$WT_ii >= 0.048, "GD")
+#   
+#   ES$ES_state <- replace(x = ES$ES_state, ES$NS_ii <= (0.05*2) & ES$NS_ii >= 0.05 & ES$WT_ii < 0.048 , "GD")
+#   
+#   ES$ES_state <- replace(x = ES$ES_state, ES$NS_ii <= (0.05*2) & ES$NS_ii >= 0.05 & ES$WT_ii <= 0.001, "WT-ES")
+#   
+#   ES$ES_state <- replace(x = ES$ES_state, ES$NS_ii <= 0.001 & ES$WT_ii <= (0.048*2) & ES$WT_ii >= 0.048, "NS-ES")
+#   
+#   return(states)
+# }
+
 ### Code for chapter 3. In vitro Tn-seq
 
 setwd("~/Desktop/PhD/")
@@ -237,23 +263,17 @@ CHPT3 <- left_join(INVITRO, CHPT3, "locus_tag")
 
 # ICE Essentiality States
 
-ICE$state <- "NE"
+CHPT3$ICE_state <- "NE"
 
-ICE$state <- replace(x = ICE$state,
-                     ICE$ES <= 0.03,
-                     "ICE-ES")
-ICE$state <- replace(x = ICE$state,
-                     ICE$ES > 0.03 & ICE$GR == 0,
-                     "ICE-GR-ES")
-ICE$state <- replace(x = ICE$state,
-                     ICE$ES > 0.03 & ICE$TY == 0,
-                     "ICE-TY-ES")
-ICE$state <- replace(x = ICE$state,
-                     ICE$ES > 0.03 & ICE$GR == 0 & ICE$TY ==0,
-                     "ICE-AGAR-ES")
-ICE$state <- replace(x = ICE$state,
-                     ICE$ES > 0.03 & ICE$TB == 0,
-                     "ICE-TB-ES")
+# TODO: Update the code ####
+
+CHPT3$ICE_state <- replace(x = CHPT3$ICE_state, !CHPT3$ICESym, NA)
+
+ICE$state <- replace(x = ICE$state, ICE$ES <= 0.03, "ICE-ES")
+ICE$state <- replace(x = ICE$state, ICE$ES > 0.03 & ICE$GR == 0, "ICE-GR-ES")
+ICE$state <- replace(x = ICE$state, ICE$ES > 0.03 & ICE$TY == 0, "ICE-TY-ES")
+ICE$state <- replace(x = ICE$state, ICE$ES > 0.03 & ICE$GR == 0 & ICE$TY == 0, "ICE-AGAR-ES")
+ICE$state <- replace(x = ICE$state, ICE$ES > 0.03 & ICE$TB == 0, "ICE-TB-ES")
 
 write_tsv(ICE, "../ICE in vitro updated states.txt")
 
