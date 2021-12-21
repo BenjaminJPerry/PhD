@@ -96,36 +96,42 @@ ES <- ES %>% mutate(NS_ii = replace(NS_ii, ICESym, NA))
 ES$ES_state <- "NE"
 
 ES$ES_state <- replace(x = ES$ES_state,
-                    ES$NS_ii < 0.05 & ES$WT_ii < 0.048,
+                    ES$NS_ii < 0.05/2 & ES$WT_ii < 0.0478/2,
                     "CORE-ES")
+
 ES$ES_state <- replace(x = ES$ES_state,
-                    ES$NS_ii < 0.05 & ES$WT_ii > (0.048*2),
-                    "NS-ES")
+                    ES$NS_ii < 0.05/2 & ES$WT_ii > 0.0478*2 | ES$NS_ii< 0.01 & ES$WT_ii > 0.0478,
+                    "NS-GD")
+
 ES$ES_state <- replace(x = ES$ES_state,
-                    ES$NS_ii > (0.05*2) & ES$WT_ii < 0.048,
-                    "WT-ES")
+                    ES$WT_ii < 0.0478/2 & ES$NS_ii > 0.05*2 | ES$WT_ii < 0.01 & ES$NS_ii > 0.05,
+                    "WT-GD")
+
 ES$ES_state <- replace(x = ES$ES_state,
-                    ES$NS_ii < 0.05 & ES$WT_ii <= (0.048*2) & ES$WT_ii >= 0.048,
-                    "GD")
+                       ES$NS_ii <= 0.05*1.5 & ES$NS_ii >= 0.05/2 & ES$WT_ii < 0.0478,
+                       "GD")
+
 ES$ES_state <- replace(x = ES$ES_state,
-                    ES$NS_ii <= (0.05*2) & ES$NS_ii >= 0.05 & ES$WT_ii < 0.048 ,
-                    "GD")
+                       ES$WT_ii <= 0.0478*1.5 & ES$WT_ii >= 0.0478/2 & ES$NS_ii < 0.05,
+                       "GD")
+
 ES$ES_state <- replace(x = ES$ES_state,
-                    ES$NS_ii <= (0.05*2) & ES$NS_ii >= 0.05 & ES$WT_ii <= 0.001,
-                    "WT-ES")
-ES$ES_state <- replace(x = ES$ES_state,
-                    ES$NS_ii <= 0.001 & ES$WT_ii <= (0.048*2) & ES$WT_ii >= 0.048,
-                    "NS-ES")
+                       ES$NS_ii < 0.01 & ES$WT_ii < 0.0478 | ES$WT_ii < 0.01 & ES$NS_ii <  0.05,
+                       "CORE-ES")
+
 # Plot the correlated insertion indices
 ES_plot <- ES %>% ggplot(aes(x=NS_ii, y=WT_ii, color=ES_state, alpha=0.1)) + 
   geom_point() + 
   theme_minimal(base_size = 20) + 
   guides(colour = guide_legend(override.aes = list(size=8))) +
-  geom_hline(yintercept = 0.048) +
-  geom_vline(xintercept = 0.05) + xlim(0,0.3) + ylim(0,0.3)
-ggsave(plot = ES_plot, "results/chapter 3 in vitro/ES.ins_index.png", width = 12, height = 8)
+  geom_hline(yintercept = 0.0478) + #geom_hline(yintercept = 0.0478/2) +
+  geom_vline(xintercept = 0.05) + xlim(0,0.3) + ylim(0,0.3)#+ geom_vline(xintercept = 0.05/2)
 
-ES_plot_zoom <- ES %>% ggplot(aes(x=NS_ii, y=WT_ii, color=ES_state, alpha=0.1)) + 
+ggsave(plot = ES_plot, "results/chapter 3 in vitro/ES.ins_index.png", width = 12, height = 8)
+ES_plot
+
+#ES_plot_zoom <- 
+ES %>% ggplot(aes(x=NS_ii, y=WT_ii, color=ES_state, alpha=0.1, size = 1)) + 
   geom_point() + 
   theme_minimal(base_size = 20) + 
   guides(colour = guide_legend(override.aes = list(size=8))) +
@@ -264,48 +270,56 @@ CHPT3 <- left_join(INVITRO, CHPT3, "locus_tag")
 # ICE Essentiality States
 
 CHPT3$ICE_state <- "NE"
-
-# TODO: Update the code ####
-
 CHPT3$ICE_state <- replace(x = CHPT3$ICE_state, !CHPT3$ICESym, NA)
+CHPT3$ICE_state <- replace(x = CHPT3$ICE_state, CHPT3$WT_ii <= 0.025 & CHPT3$ICE_state != "NA", "ICE-ES")
+CHPT3$ICE_state <- replace(x = CHPT3$ICE_state, CHPT3$WT_ii >= 0.025 & CHPT3$WTTY_ii == 0 & CHPT3$ICE_state != "NA", "ICE-TY-ES")
+CHPT3$ICE_state <- replace(x = CHPT3$ICE_state, CHPT3$WT_ii >= 0.025 & CHPT3$WTGR_ii < 0.001 & CHPT3$ICE_state != "NA", "ICE-GR-ES")
+CHPT3$ICE_state <- replace(x = CHPT3$ICE_state, CHPT3$WT_ii >= 0.025 & CHPT3$WTGR_ii < 0.001 & CHPT3$WTTY_ii < 0.001 & CHPT3$ICE_state != "NA", "ICE-AGAR-ES")
+CHPT3$ICE_state <- replace(x = CHPT3$ICE_state, CHPT3$WT_ii >= 0.025 & CHPT3$WTTB_ii < 0.001 & CHPT3$ICE_state != "NA", "ICE-TB-ES")
 
-ICE$state <- replace(x = ICE$state, ICE$ES <= 0.03, "ICE-ES")
-ICE$state <- replace(x = ICE$state, ICE$ES > 0.03 & ICE$GR == 0, "ICE-GR-ES")
-ICE$state <- replace(x = ICE$state, ICE$ES > 0.03 & ICE$TY == 0, "ICE-TY-ES")
-ICE$state <- replace(x = ICE$state, ICE$ES > 0.03 & ICE$GR == 0 & ICE$TY == 0, "ICE-AGAR-ES")
-ICE$state <- replace(x = ICE$state, ICE$ES > 0.03 & ICE$TB == 0, "ICE-TB-ES")
+CHPT3$ICE_state <- CHPT3$ICE_state %>% mutate(ICE_state = as.factor(ICE_state))
+CHPT3$ICE_state <- factor(CHPT3$ICE_state, levels = c("ICE-ES", "NE", "ICE-TY-ES", "ICE-GR-ES", "ICE-TB-ES", "ICE-AGAR-ES"))
 
-write_tsv(ICE, "../ICE in vitro updated states.txt")
+ICE_essential <- CHPT3 %>% filter(ICESym) %>% 
+  select(WT_ii, ICE_state) %>% 
+  ggplot(aes(x=WT_ii, fill = ICE_state)) + 
+  geom_histogram(bins = 100) + 
+  theme_minimal() + 
+  geom_vline(xintercept = 0.025)
 
-ICE <- ICE %>% mutate(state = as.factor(state))
-ICE$state <- factor(ICE$state, levels = c("ICE-ES", "ICE-AGAR-ES", "NE", "ICE-TB-ES", "ICE-GR-ES"))
+ICE_essential
 
-ICE %>% ggplot(aes(x=ES, y=TY, alpha=0.1, color=state)) + 
+ICETY <- CHPT3 %>% filter(ICESym) %>% ggplot(aes(x=WT_ii, y=WTTY_ii, alpha=0.1, color=ICE_state)) + 
   geom_point() + 
   theme_minimal(base_size = 20) + 
   guides(colour = guide_legend(override.aes = list(size=8))) +
-  geom_vline(xintercept = 0.03) +
+  geom_vline(xintercept = 0.025) +
   ylim(0,0.125) #+
-ggsave("ICE.TY.ins_index.png", width = 12, height = 8) +
-  ggsave("ICE.TY.ins_index.svg", width = 12, height = 8)
+# ggsave("ICE.TY.ins_index.png", width = 12, height = 8) +
+#   ggsave("ICE.TY.ins_index.svg", width = 12, height = 8)
+ICETY
 
-ICE %>% ggplot(aes(x=ES, y=TB, alpha=0.1, color=state)) + 
+ICEGR <- CHPT3 %>% filter(ICESym) %>% ggplot(aes(x=WT_ii, y=WTGR_ii, alpha=0.1, color=ICE_state)) + 
   geom_point() + 
   theme_minimal(base_size = 20) + 
   guides(colour = guide_legend(override.aes = list(size=8))) +
-  geom_vline(xintercept = 0.03) +
+  geom_vline(xintercept = 0.025) +
   ylim(0,0.125) #+
-ggsave("ICE.TB.ins_index.png", width = 12, height = 8) +
-  ggsave("ICE.TB.ins_index.svg", width = 12, height = 8)
+# ggsave("ICE.GR.ins_index.png", width = 12, height = 8) +
+#   ggsave("ICE.GR.ins_index.svg", width = 12, height = 8)
+ICEGR
 
-ICE %>% ggplot(aes(x=ES, y=GR, alpha=0.1, color=state)) + 
+ICETB <- CHPT3 %>% filter(ICESym) %>% ggplot(aes(x=WT_ii, y=WTTB_ii, alpha=0.1, color=ICE_state)) + 
   geom_point() + 
   theme_minimal(base_size = 20) + 
   guides(colour = guide_legend(override.aes = list(size=8))) +
-  geom_vline(xintercept = 0.03) +
+  geom_vline(xintercept = 0.025) +
   ylim(0,0.125) #+
-ggsave("ICE.GR.ins_index.png", width = 12, height = 8) +
-  ggsave("ICE.GR.ins_index.svg", width = 12, height = 8)
+# ggsave("ICE.TY.ins_index.png", width = 12, height = 8) +
+#   ggsave("ICE.TY.ins_index.svg", width = 12, height = 8)
+ICETB
+
+# TODO: Filter for gene length < 95th Perentile.####
 
 ### Summary Plots ###
 invitro_plot <- ggarrange(TB_plot, GR_plot, TY_plot, nrow = 1, align = "h", legend = "none")
@@ -316,3 +330,6 @@ essential_plot <- ggarrange(ES_plot, ES_plot_zoom, align = "h", legend = "none")
 essential_plot
 ggsave(plot = essential_plot, "results/chapter 3 in vitro/essential.ins_index.png", bg = "white")
 
+ggsave(plot = ICE_essential, "results/chapter 3 in vitro/ice.essential.ins_index.png", bg = "white")
+ICE.Panel <- ggarrange(ICETY, ICEGR, ICETB, nrow =1 , common.legend = T)
+ggsave(plot = ICE.Panel, "results/chapter 3 in vitro/ICE.conditional.ins_index.png", bg = "white")
