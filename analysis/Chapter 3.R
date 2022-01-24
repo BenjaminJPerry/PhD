@@ -26,39 +26,54 @@
 
 ### Code for chapter 3. In vitro Tn-seq
 
-setwd("~/Desktop/PhD/")
+#setwd("~/Desktop/PhD/")
 set.seed(seed = 1953)
 
 library(tidyverse)
 library(cowplot)
 library(ggpubr)
 
+# Function to read in a directory of tradis output files.
 readTradis <- function(wrkingdir = "") {
-  cwd<-getwd()
+  
+  cwd <- getwd()
+  
   setwd(dir = wrkingdir)
-  tradisFiles <-
-    list.files(pattern = ".tradis_gene_insert_sites.csv.all.csv")
-  tradisData <-
-    data_frame(filename = tradisFiles) %>% mutate(file_contents = map(filename, ~read_delim(., delim = ",")))
+  
+  tradisFiles <- list.files(pattern = ".tradis_gene_insert_sites.csv.all.csv")
+  
+  tradisData <- data_frame(filename = tradisFiles) %>% 
+                mutate(file_contents = map(filename, ~read_delim(., delim = ",")))
+  
   tradisTable <- unnest(tradisData, cols = c(file_contents))
-  tradisTable <- tradisTable %>% separate(
-    col = filename,
-    sep = "[.]",
-    remove = F,
-    into = c("library", NA, NA, NA, NA, NA)
-  )
-  tradisTable <-
-    tradisTable %>% select(locus_tag, ins_index, library)
-  tradisTable <-
-    tradisTable %>% pivot_wider(values_from = ins_index, names_from = library, values_fill = NA)
+  
+  tradisTable <- tradisTable %>%
+    separate(
+      col = filename,
+      sep = "[.]",
+      remove = F,
+      into = c("library", NA, NA, NA, NA, NA)
+    )
+  
+  tradisTable <- tradisTable %>% 
+    select(locus_tag, ins_index, library)
+  
+  tradisTable <- tradisTable %>% 
+    pivot_wider(
+      values_from = ins_index,
+      names_from = library,
+      values_fill = NA
+    )
+  
   setwd(cwd)
+  
   return(tradisTable)
 }
 
 ### 1. Compile insertion index summary tables for analysis. ###
 
-ES <- readTradis(wrkingdir = "~/Desktop/PhD/data/tradis/essential/")
-INVITRO <- readTradis(wrkingdir = "~/Desktop/PhD/data/tradis/in vitro/")
+ES <- readTradis(wrkingdir = "~/projects/PhD/data/tradis/essential/")
+INVITRO <- readTradis(wrkingdir = "~/projects/PhD/data/tradis/in vitro/")
 
 ### 2. Compile Annotations Table ###
 # COGS <- read_tsv(file = "data/ref/R7A2020.eggNOG.tsv", col_names = F, trim_ws = T, comment = "#")
@@ -71,15 +86,15 @@ INVITRO <- readTradis(wrkingdir = "~/Desktop/PhD/data/tradis/in vitro/")
 # KEGG <- KEGG[ !duplicated(KEGG$locus_tag), ]  ### Keep highest
 # KEGG <- KEGG %>%  select(locus_tag, KO, KA)
 # ANNOT <- left_join(COGS,KEGG)
+# rm(COGS)
+# rm(KEGG)
 
 ### 2.1 Take Mannual Annotations from Old Analysis ###
 # NOTE: At this point the annotation table (ANNOT) was mannual curated. A Column "FUN" was created which
 #       selected the single best COG category for genes of interest (ES/GD/etc.) but not all neutral genes.
 #       Annotations were included for non protein features such as tRNAs as well. I've read in this table below.
 
-ANNOT <- read_csv(file = "data/ref/MLR7A_2020.annotations.csv")
-rm(COGS)
-rm(KEGG)
+ANNOT <- read_csv(file = "~/projects/PhD/data/ref/MLR7A_2020.annotations.csv")
 
 ### 3. Update the traDIS insertion index summary tables with essentiality states based on the thresholds calculated from the traDIS analysis. ###
 ###    Essentiality States are for combined data of the WT and the NS datasets
@@ -100,11 +115,11 @@ ES$ES_state <- replace(x = ES$ES_state,
                     "CORE-ES")
 
 ES$ES_state <- replace(x = ES$ES_state,
-                    ES$NS_ii < 0.05/2 & ES$WT_ii > 0.0478*2 | ES$NS_ii< 0.01 & ES$WT_ii > 0.0478,
+                    ES$NS_ii < 0.05 & ES$WT_ii > (0.0478*2) | ES$NS_ii< 0.01 & ES$WT_ii > 0.0478,
                     "NS-GD")
 
 ES$ES_state <- replace(x = ES$ES_state,
-                    ES$WT_ii < 0.0478/2 & ES$NS_ii > 0.05*2 | ES$WT_ii < 0.01 & ES$NS_ii > 0.05,
+                    ES$WT_ii < 0.0478 & ES$NS_ii > 0.05*2 | ES$WT_ii < 0.01 & ES$NS_ii > 0.05,
                     "WT-GD")
 
 ES$ES_state <- replace(x = ES$ES_state,
@@ -120,23 +135,24 @@ ES$ES_state <- replace(x = ES$ES_state,
                        "CORE-ES")
 
 # Plot the correlated insertion indices
-ES_plot <- ES %>% ggplot(aes(x=NS_ii, y=WT_ii, color=ES_state, alpha=0.1)) + 
-  geom_point() + 
+ES_plot <- ES %>% ggplot(aes(x=NS_ii, y=WT_ii, color=ES_state)) + 
+  geom_point(alpha=0.5, size = 2) + 
   theme_minimal(base_size = 20) + 
-  guides(colour = guide_legend(override.aes = list(size=8))) +
+  guides(colour = guide_legend(override.aes = list(size=8, alpha=1))) +
   geom_hline(yintercept = 0.0478) + #geom_hline(yintercept = 0.0478/2) +
   geom_vline(xintercept = 0.05) + xlim(0,0.3) + ylim(0,0.3)#+ geom_vline(xintercept = 0.05/2)
-
-ggsave(plot = ES_plot, "results/chapter 3 in vitro/ES.ins_index.png", width = 12, height = 8)
 ES_plot
 
+ggsave(plot = ES_plot, "results/chapter 3 in vitro/ES.ins_index.png", width = 12, height = 8)
+
 #ES_plot_zoom <- 
-ES %>% ggplot(aes(x=NS_ii, y=WT_ii, color=ES_state, alpha=0.1, size = 1)) + 
-  geom_point() + 
+ES_plot_zoom <- ES %>% ggplot(aes(x=NS_ii, y=WT_ii, color=ES_state)) + 
+  geom_point(alpha=0.5, size = 3) + 
   theme_minimal(base_size = 20) + 
-  guides(colour = guide_legend(override.aes = list(size=8))) +
+  guides(colour = guide_legend(override.aes = list(size=8, alpha=1))) +
   geom_hline(yintercept = 0.048) +
-  geom_vline(xintercept = 0.05) + xlim(0,0.1) + ylim(0,0.1)
+  geom_vline(xintercept = 0.05) + xlim(0,0.15) + ylim(0,0.15)
+ES_plot_zoom
 ggsave(plot = ES_plot_zoom, "results/chapter 3 in vitro/ES.ins_index.zoom.png", width = 12, height = 8)
 
 ### 4. Update the traDIS insertion index summary tables for the conditionally essential states using similar rules to section 3. ###
@@ -182,7 +198,7 @@ TY_plot <- INVITRO %>% ggplot(aes(x=NSTY_ii, y=WTTY_ii, color=TY_state, alpha=0.
   guides(colour = guide_legend(override.aes = list(size=8))) +
   geom_hline(yintercept = 0.018) +
   geom_vline(xintercept = 0.016) + xlim(0,0.1) + ylim(0,0.1)
-
+TY_plot
 ggsave(plot = TY_plot, "results/chapter 3 in vitro/TY.ins_index.png", width = 12, height = 8)
 
 ###    GR States - GR_states
@@ -219,7 +235,7 @@ GR_plot <- INVITRO %>% ggplot(aes(x=NSGR_ii, y=WTGR_ii, color=GR_state, alpha=0.
   guides(colour = guide_legend(override.aes = list(size=8))) +
   geom_hline(yintercept = 0.012) +
   geom_vline(xintercept = 0.015) + xlim(0,0.1) + ylim(0,0.1)
-
+GR_plot
 ggsave(plot = GR_plot, "results/chapter 3 in vitro/GR.ins_index.png", width = 12, height = 8)
 
 ###    TB States - TB_states
@@ -257,7 +273,7 @@ TB_plot <- INVITRO %>% ggplot(aes(x=NSTB_ii, y=WTTB_ii, color=TB_state, alpha=0.
   guides(colour = guide_legend(override.aes = list(size=8))) +
   geom_hline(yintercept = 0.015) +
   geom_vline(xintercept = 0.017) + xlim(0,0.1) + ylim(0,0.1)
-
+TB_plot
 ggsave(plot = TB_plot, "results/chapter 3 in vitro/TB.ins_index.png", width = 12, height = 8)
 
 
@@ -265,10 +281,10 @@ ggsave(plot = TB_plot, "results/chapter 3 in vitro/TB.ins_index.png", width = 12
 CHPT3 <- ES %>% select(locus_tag, NS_ii, WT_ii, ES_state)
 CHPT3 <- left_join(INVITRO, CHPT3, "locus_tag")
 
+
 ### 5. Update the essentiality states of ICE genes using reduced ii thresholds
 
 # ICE Essentiality States
-
 CHPT3$ICE_state <- "NE"
 CHPT3$ICE_state <- replace(x = CHPT3$ICE_state, !CHPT3$ICESym, NA)
 CHPT3$ICE_state <- replace(x = CHPT3$ICE_state, CHPT3$WT_ii <= 0.025 & CHPT3$ICE_state != "NA", "ICE-ES")
@@ -278,7 +294,7 @@ CHPT3$ICE_state <- replace(x = CHPT3$ICE_state, CHPT3$WT_ii >= 0.025 & CHPT3$WTG
 CHPT3$ICE_state <- replace(x = CHPT3$ICE_state, CHPT3$WT_ii >= 0.025 & CHPT3$WTTB_ii < 0.001 & CHPT3$ICE_state != "NA", "ICE-TB-ES")
 
 CHPT3$ICE_state <- CHPT3$ICE_state %>% mutate(ICE_state = as.factor(ICE_state))
-CHPT3$ICE_state <- factor(CHPT3$ICE_state, levels = c("ICE-ES", "NE", "ICE-TY-ES", "ICE-GR-ES", "ICE-TB-ES", "ICE-AGAR-ES"))
+CHPT3$ICE_state <- factor(CHPT3$ICE_state, levels = c("ICE-ES", "ICE-AGAR-ES", "NE", "ICE-TY-ES", "ICE-GR-ES", "ICE-TB-ES"))
 
 ICE_essential <- CHPT3 %>% filter(ICESym) %>% 
   select(WT_ii, ICE_state) %>% 
@@ -286,40 +302,39 @@ ICE_essential <- CHPT3 %>% filter(ICESym) %>%
   geom_histogram(bins = 100) + 
   theme_minimal() + 
   geom_vline(xintercept = 0.025)
-
 ICE_essential
+ggsave(plot = ICE_essential,"~/projects/PhD/results/chapter 3 in vitro/ICE.ES.histogram.png", width = 12, height = 8)
 
-ICETY <- CHPT3 %>% filter(ICESym) %>% ggplot(aes(x=WT_ii, y=WTTY_ii, alpha=0.1, color=ICE_state)) + 
-  geom_point() + 
+ICETY <- CHPT3 %>% filter(ICESym) %>% ggplot(aes(x=WT_ii, y=WTTY_ii, color=ICE_state)) + 
+  geom_point(alpha=0.5, size = 5) + 
   theme_minimal(base_size = 20) + 
-  guides(colour = guide_legend(override.aes = list(size=8))) +
+  guides(colour = guide_legend(override.aes = list(size=8, alpha=1))) +
   geom_vline(xintercept = 0.025) +
-  ylim(0,0.125) #+
-# ggsave("ICE.TY.ins_index.png", width = 12, height = 8) +
-#   ggsave("ICE.TY.ins_index.svg", width = 12, height = 8)
+  ylim(0,0.125)
 ICETY
+ggsave(plot = ICETY,"~/projects/PhD/results/chapter 3 in vitro/ICE.TY.ins_index.png", width = 12, height = 8)
 
-ICEGR <- CHPT3 %>% filter(ICESym) %>% ggplot(aes(x=WT_ii, y=WTGR_ii, alpha=0.1, color=ICE_state)) + 
-  geom_point() + 
+ICEGR <- CHPT3 %>% filter(ICESym) %>% ggplot(aes(x=WT_ii, y=WTGR_ii, color=ICE_state)) + 
+  geom_point(alpha=0.5, size = 5) + 
   theme_minimal(base_size = 20) + 
-  guides(colour = guide_legend(override.aes = list(size=8))) +
+  guides(colour = guide_legend(override.aes = list(size=8, alpha=1))) +
   geom_vline(xintercept = 0.025) +
-  ylim(0,0.125) #+
-# ggsave("ICE.GR.ins_index.png", width = 12, height = 8) +
-#   ggsave("ICE.GR.ins_index.svg", width = 12, height = 8)
+  ylim(0,0.125)
 ICEGR
+ggsave(plot = ICEGR, "~/projects/PhD/results/chapter 3 in vitro/ICE.GR.ins_index.png", width = 12, height = 8) 
 
-ICETB <- CHPT3 %>% filter(ICESym) %>% ggplot(aes(x=WT_ii, y=WTTB_ii, alpha=0.1, color=ICE_state)) + 
-  geom_point() + 
+ICETB <- CHPT3 %>% filter(ICESym) %>% ggplot(aes(x=WT_ii, y=WTTB_ii, color=ICE_state)) + 
+  geom_point(alpha=0.5, size = 5) + 
   theme_minimal(base_size = 20) + 
-  guides(colour = guide_legend(override.aes = list(size=8))) +
+  guides(colour = guide_legend(override.aes = list(size=8, alpha=1))) +
   geom_vline(xintercept = 0.025) +
-  ylim(0,0.125) #+
-# ggsave("ICE.TY.ins_index.png", width = 12, height = 8) +
-#   ggsave("ICE.TY.ins_index.svg", width = 12, height = 8)
+  ylim(0,0.125)
 ICETB
+ggsave(plot = ICETB, "~/projects/PhD/results/chapter 3 in vitro/ICE.TY.ins_index.png", width = 12, height = 8)
 
 # TODO: Filter for gene length < 95th Perentile.####
+
+
 
 ### Summary Plots ###
 invitro_plot <- ggarrange(TB_plot, GR_plot, TY_plot, nrow = 1, align = "h", legend = "none")
