@@ -117,10 +117,10 @@ ES$ES_state <- replace(x = ES$ES_state,
                     "CORE-ES")
 ES$ES_state <- replace(x = ES$ES_state,
                     ES$NS_ii < 0.05 & ES$WT_ii > (0.0478*2) | ES$NS_ii< 0.01 & ES$WT_ii > 0.0478,
-                    "NS-GD")
+                    "NS-ES")
 ES$ES_state <- replace(x = ES$ES_state,
                     ES$WT_ii < 0.0478 & ES$NS_ii > 0.05*2 | ES$WT_ii < 0.01 & ES$NS_ii > 0.05,
-                    "WT-GD")
+                    "WT-ES")
 ES$ES_state <- replace(x = ES$ES_state,
                        ES$NS_ii <= 0.05*1.5 & ES$NS_ii >= 0.05/2 & ES$WT_ii < 0.0478,
                        "GD")
@@ -138,7 +138,7 @@ ES$ES_state <- replace(x = ES$ES_state,
                       (ES$NS_ii > 0),
                       "SHORT")
 
-ES$ES_state <- factor(ES$ES_state, levels = c("CORE-ES", "GD", "NE", "SHORT", "NS-GD", "WT-GD"))
+ES$ES_state <- factor(ES$ES_state, levels = c("CORE-ES", "GD", "NE", "SHORT", "NS-ES", "WT-ES"))
 
 # Plot the correlated insertion indices
 ES_plot <- ES %>% filter(ES$ES_state != "SHORT") %>% 
@@ -393,12 +393,40 @@ ICE.Panel <- ggarrange(ICETY, ICEGR, ICETB, nrow =1 , common.legend = T)
 ggsave(plot = ICE.Panel, "results/chapter 3 in vitro/ICE.conditional.ins_index.png", bg = "white")
 
 
-#TODO: Update the Conditionally Essential states to have CORE-ES override
+#Update the Conditionally Essential states to have CORE-ES override
+CHPT3$TY_state <- factor(CHPT3$TY_state, levels = c("CORE-ES","TY-ES", "TY-GD", "NE", "SHORT","NS-TY-ES", "WT-TY-ES"))
+CHPT3$TY_state <- replace(x = CHPT3$TY_state,
+                              CHPT3$ES_state == "CORE-ES",
+                             "CORE-ES")
 
-#TODO: Update the Conditionally Essential states to have GD override 
+CHPT3$GR_state <- factor(CHPT3$GR_state, levels = c("CORE-ES","GR-ES", "GR-GD", "NE", "SHORT","NS-GR-ES", "WT-GR-ES"))
+CHPT3$GR_state <- replace(x = CHPT3$GR_state,
+                          CHPT3$ES_state == "CORE-ES",
+                          "CORE-ES")
+
+CHPT3$TB_state <- factor(CHPT3$TB_state, levels = c("CORE-ES","TB-ES", "TB-GD", "NE", "SHORT","NS-TB-ES", "WT-TB-ES"))
+CHPT3$TB_state <- replace(x = CHPT3$TB_state,
+                          CHPT3$ES_state == "CORE-ES",
+                          "CORE-ES")
 
 ### Write the Output Table ###
 write_csv(x = CHPT3,
           file = "~/projects/PhD/results/chapter 3 in vitro/Chapter 3 Analysis Summary.csv",
           col_names = T)
+
+# Venn diagram calculations for CORE-ES, WT-ES, and NS-ES
+library(ggvenn)
+
+CORE <- CHPT3 %>% filter(ES_state == "CORE-ES") %>% select(locus_tag) %>% as.list()
+CORE <- CORE$locus_tag
+WT_ES <- CHPT3 %>% filter(ES_state == "CORE-ES" | ES_state == "WT-ES") %>% select(locus_tag) %>% as.list()
+WT_ES <- WT_ES$locus_tag
+NS_ES <- CHPT3 %>% filter(ES_state == "CORE-ES" | ES_state == "NS-ES") %>% select(locus_tag) %>% as.list()
+NS_ES <- NS_ES$locus_tag
+
+ES_Venn <- list(COREES = CORE, WTGD = WT_ES, NSGD = NS_ES)
+
+ggvenn(ES_Venn)
+
+# Venn diagram calculations for CORE-ES, WT-ES, and NS-ES
 
