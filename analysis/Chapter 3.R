@@ -143,25 +143,25 @@ ES$ES_state <- factor(ES$ES_state, levels = c("CORE-ES", "GD", "NE", "SHORT", "N
 # Plot the correlated insertion indices
 ES_plot <- ES %>% filter(ES$ES_state != "SHORT") %>% 
   ggplot(aes(x=NS_ii, y=WT_ii, color=ES_state)) + 
-  geom_point(alpha=0.5, size = 2) + 
+  geom_point(alpha=0.75, size = 2) + 
   theme_minimal(base_size = 20) + 
   guides(colour = guide_legend(override.aes = list(size=8, alpha=1), order = 0)) +
   geom_hline(yintercept = 0.0478) + #geom_hline(yintercept = 0.0478/2) +
   geom_vline(xintercept = 0.05) + xlim(0,0.3) + ylim(0,0.3)#+ geom_vline(xintercept = 0.05/2)
 ES_plot
 
-ggsave(plot = ES_plot, "results/chapter 3 in vitro/ES.ins_index.png", width = 12, height = 8)
+ggsave(plot = ES_plot, "~/projects/PhD/results/chapter 3 in vitro/ES.ins_index.pdf", width = 12, height = 8)
 
 #ES_plot_zoom <- 
 ES_plot_zoom <- ES %>% filter(ES$ES_state != "SHORT") %>% 
   ggplot(aes(x=NS_ii, y=WT_ii, color=ES_state)) + 
-  geom_point(alpha=0.5, size = 3) + 
+  geom_point(alpha=0.75, size = 3) + 
   theme_minimal(base_size = 20) + 
   guides(colour = guide_legend(override.aes = list(size=8, alpha=1))) +
   geom_hline(yintercept = 0.048) +
   geom_vline(xintercept = 0.05) + xlim(0,0.15) + ylim(0,0.15)
 ES_plot_zoom
-ggsave(plot = ES_plot_zoom, "results/chapter 3 in vitro/ES.ins_index.zoom.png", width = 12, height = 8)
+ggsave(plot = ES_plot_zoom, "~/projects/PhD/results/chapter 3 in vitro/ES.ins_index.zoom.pdf", width = 12, height = 8)
 
 ### 4. Update the traDIS insertion index summary tables for the conditionally essential states using similar rules to section 3. ###
 
@@ -213,13 +213,13 @@ INVITRO$TY_state <- factor(INVITRO$TY_state, levels = c("TY-ES", "TY-GD", "NE", 
 
 TY_plot <- INVITRO %>% filter(INVITRO$TY_state != "SHORT") %>%
   ggplot(aes(x=NSTY_ii, y=WTTY_ii, color=TY_state, alpha=0.1)) + 
-  geom_point() + 
+  geom_point(alpha=0.75, size = 2) + 
   theme_minimal(base_size = 20) + 
   guides(colour = guide_legend(override.aes = list(size=8))) +
   geom_hline(yintercept = 0.018) +
   geom_vline(xintercept = 0.016) + xlim(0,0.1) + ylim(0,0.1)
 TY_plot
-ggsave(plot = TY_plot, "results/chapter 3 in vitro/TY.ins_index.png", width = 12, height = 8)
+ggsave(plot = TY_plot, "~/projects/PhD/results/chapter 3 in vitro/TY.ins_index.pdf", width = 12, height = 8)
 
 ###    GR States - GR_states
 INVITRO$GR_state <- "NE"
@@ -257,13 +257,13 @@ INVITRO$GR_state <- factor(INVITRO$GR_state, levels = c("GR-ES", "GR-GD", "NE", 
 
 GR_plot <- INVITRO %>% filter(GR_state != "SHORT") %>% 
   ggplot(aes(x=NSGR_ii, y=WTGR_ii, color=GR_state, alpha=0.1)) + 
-  geom_point() + 
+  geom_point(alpha=0.75, size = 2) + 
   theme_minimal(base_size = 20) + 
   guides(colour = guide_legend(override.aes = list(size=8))) +
   geom_hline(yintercept = 0.012) +
   geom_vline(xintercept = 0.015) + xlim(0,0.1) + ylim(0,0.1)
 GR_plot
-ggsave(plot = GR_plot, "results/chapter 3 in vitro/GR.ins_index.png", width = 12, height = 8)
+ggsave(plot = GR_plot, "~/projects/PhD/results/chapter 3 in vitro/GR.ins_index.pdf", width = 12, height = 8)
 
 ###    TB States - TB_states
 INVITRO$TB_state <- "NE"
@@ -301,13 +301,13 @@ INVITRO$TB_state <- factor(INVITRO$TB_state, levels = c("TB-ES", "TB-GD", "NE", 
 
 TB_plot <- INVITRO %>% filter(TB_state != "SHORT") %>% 
   ggplot(aes(x=NSTB_ii, y=WTTB_ii, color=TB_state, alpha=0.1)) + 
-  geom_point() + 
+  geom_point(alpha=0.75, size = 2) + 
   theme_minimal(base_size = 20) + 
   guides(colour = guide_legend(override.aes = list(size=8))) +
   geom_hline(yintercept = 0.015) +
   geom_vline(xintercept = 0.017) + xlim(0,0.1) + ylim(0,0.1)
 TB_plot
-ggsave(plot = TB_plot, "results/chapter 3 in vitro/TB.ins_index.png", width = 12, height = 8)
+ggsave(plot = TB_plot, "~/projects/PhD/results/chapter 3 in vitro/TB.ins_index.pdf", width = 12, height = 8)
 
 ### Merge the ES and INVITRO dataframes into CHPT3 dataframe ###
 CHPT3 <- ES %>% select(locus_tag, NS_ii, WT_ii, ES_state)
@@ -350,48 +350,46 @@ ICE_essential <- CHPT3 %>% filter(ICESym) %>%
   theme_minimal() + 
   geom_vline(xintercept = 0.025)
 ICE_essential
-ggsave(plot = ICE_essential,"~/projects/PhD/results/chapter 3 in vitro/ICE.ES.histogram.png", width = 12, height = 8)
+ggsave(plot = ICE_essential,"~/projects/PhD/results/chapter 3 in vitro/ICE.ES.histogram.pdf", width = 12, height = 8)
 
 ICETY <- CHPT3 %>% filter(ICESym) %>% ggplot(aes(x=WT_ii, y=WTTY_ii, color=ICE_state)) + 
-  geom_point(alpha=0.5, size = 5) + 
+  geom_point(alpha=0.75, size = 2) + 
   theme_minimal(base_size = 20) + 
   guides(colour = guide_legend(override.aes = list(size=8, alpha=1))) +
   geom_vline(xintercept = 0.025) +
   ylim(0,0.125)
 ICETY
-ggsave(plot = ICETY,"~/projects/PhD/results/chapter 3 in vitro/ICE.TY.ins_index.png", width = 12, height = 8)
+ggsave(plot = ICETY,"~/projects/PhD/results/chapter 3 in vitro/ICE.TY.ins_index.pdf", width = 12, height = 8)
 
 ICEGR <- CHPT3 %>% filter(ICESym) %>% ggplot(aes(x=WT_ii, y=WTGR_ii, color=ICE_state)) + 
-  geom_point(alpha=0.5, size = 5) + 
+  geom_point(alpha=0.75, size = 2) + 
   theme_minimal(base_size = 20) + 
   guides(colour = guide_legend(override.aes = list(size=8, alpha=1))) +
   geom_vline(xintercept = 0.025) +
   ylim(0,0.125)
 ICEGR
-ggsave(plot = ICEGR, "~/projects/PhD/results/chapter 3 in vitro/ICE.GR.ins_index.png", width = 12, height = 8) 
+ggsave(plot = ICEGR, "~/projects/PhD/results/chapter 3 in vitro/ICE.GR.ins_index.pdf", width = 12, height = 8) 
 
 ICETB <- CHPT3 %>% filter(ICESym) %>% ggplot(aes(x=WT_ii, y=WTTB_ii, color=ICE_state)) + 
-  geom_point(alpha=0.5, size = 5) + 
+  geom_point(alpha=0.75, size = 2) + 
   theme_minimal(base_size = 20) + 
   guides(colour = guide_legend(override.aes = list(size=8, alpha=1))) +
   geom_vline(xintercept = 0.025) +
   ylim(0,0.125)
 ICETB
-ggsave(plot = ICETB, "~/projects/PhD/results/chapter 3 in vitro/ICE.TY.ins_index.png", width = 12, height = 8)
+ggsave(plot = ICETB, "~/projects/PhD/results/chapter 3 in vitro/ICE.TY.ins_index.pdf", width = 12, height = 8)
 
 ### Summary Plots ###
 invitro_plot <- ggarrange(TB_plot, GR_plot, TY_plot, nrow = 1, align = "h", legend = "none")
 invitro_plot
-ggsave(plot = invitro_plot, "results/chapter 3 in vitro/invitro.ins_index.png", bg = "white")
+ggsave(plot = invitro_plot, "~/projects/PhD/results/chapter 3 in vitro/invitro.ins_index.pdf", bg = "white")
 
 essential_plot <- ggarrange(ES_plot, ES_plot_zoom, align = "h", legend = "none")
 essential_plot
-ggsave(plot = essential_plot, "results/chapter 3 in vitro/essential.ins_index.png", bg = "white")
+ggsave(plot = essential_plot, "~/projects/PhD/results/chapter 3 in vitro/essential.ins_index.pdf", bg = "white")
 
-ggsave(plot = ICE_essential, "results/chapter 3 in vitro/ice.essential.ins_index.png", bg = "white")
 ICE.Panel <- ggarrange(ICETY, ICEGR, ICETB, nrow =1 , common.legend = T)
-ggsave(plot = ICE.Panel, "results/chapter 3 in vitro/ICE.conditional.ins_index.png", bg = "white")
-
+ggsave(plot = ICE.Panel, "~/projects/PhD/results/chapter 3 in vitro/ICE.conditional.ins_index.pdf", bg = "white")
 
 #Update the Conditionally Essential states to have CORE-ES override
 CHPT3$TY_state <- factor(CHPT3$TY_state, levels = c("CORE-ES","TY-ES", "TY-GD", "NE", "SHORT","NS-TY-ES", "WT-TY-ES"))
@@ -408,6 +406,23 @@ CHPT3$TB_state <- factor(CHPT3$TB_state, levels = c("CORE-ES","TB-ES", "TB-GD", 
 CHPT3$TB_state <- replace(x = CHPT3$TB_state,
                           CHPT3$ES_state == "CORE-ES",
                           "CORE-ES")
+
+
+### Update CORE-ES and GD genes for those ES or GD in all conditions as well
+
+CHPT3$ES_state <- replace(x = CHPT3$ES_state, 
+                          CHPT3$TY_state == "TY-ES" & 
+                          CHPT3$GR_state == "GR-ES" & 
+                          CHPT3$TB_state == "TB-ES" & 
+                          CHPT3$ES_state != "SHORT",
+                          "CORE-ES")
+
+CHPT3$ES_state <- replace(x = CHPT3$ES_state, 
+                          CHPT3$TY_state == "TY-GD" & 
+                            CHPT3$GR_state == "GR-GD" & 
+                            CHPT3$TB_state == "TB-GD" & 
+                            CHPT3$ES_state != "SHORT",
+                          "GD")
 
 ### Write the Output Table ###
 write_csv(x = CHPT3,
@@ -428,5 +443,101 @@ ES_Venn <- list(COREES = CORE, WTGD = WT_ES, NSGD = NS_ES)
 
 ggvenn(ES_Venn)
 
-# Venn diagram calculations for CORE-ES, WT-ES, and NS-ES
+# Tables of COGS by State
+CHPT3 %>% select(ES_state) %>% table()
+CHPT3 %>% select(ICE_state) %>% table()
 
+CHPT3$FUN <- factor(CHPT3$FUN, 
+                          levels = c("D", "C", "K", "J", "L", "M", "N", "O", "T", 
+                                     "U", "E", "F", "G", "H", "I", "P", "Q", "A", 
+                                     "S", "HYP", "DUFF", "PSEUDO"))
+
+CHPT3 %>% group_by(ES_state) %>% select(FUN) %>% table()
+CHPT3 %>% group_by(ICE_state) %>% select(FUN) %>% table()
+
+# Venn diagrams of conditionally ES
+
+TBES <- CHPT3 %>% 
+  filter(ES_state != "CORE-ES") %>% 
+  filter(ES_state != "GD") %>% 
+  filter(ES_state != "SHORT") %>% 
+  filter(TB_state == "TB-ES") %>% 
+  select(locus_tag) %>% 
+  as.list()
+TBES <- TBES$locus_tag
+
+GRES <- CHPT3 %>% 
+  filter(ES_state != "CORE-ES") %>% 
+  filter(ES_state != "GD") %>% 
+  filter(ES_state != "SHORT") %>% 
+  filter(GR_state == "GR-ES") %>% 
+  select(locus_tag) %>% 
+  as.list()
+GRES <- GRES$locus_tag
+
+TYES <- CHPT3 %>% 
+  filter(ES_state != "CORE-ES") %>% 
+  filter(ES_state != "GD") %>% 
+  filter(ES_state != "SHORT") %>% 
+  filter(TY_state == "TY-ES") %>% 
+  select(locus_tag) %>% 
+  as.list()
+TYES <- TYES$locus_tag
+
+CONDES_Venn <- list(TB_ES = TBES, GR_ES = GRES, TY_ES = TYES)
+ggvenn(CONDES_Venn)
+
+# Venn Diagram of conditional growth defective
+TBGD <- CHPT3 %>% 
+  filter(ES_state != "CORE-ES") %>% 
+  filter(ES_state != "GD") %>% 
+  filter(ES_state != "SHORT") %>% 
+  filter(TB_state == "TB-GD") %>% 
+  select(locus_tag) %>%
+  as.list()
+TBGD <- TBGD$locus_tag
+
+GRGD <- CHPT3 %>% 
+  filter(ES_state != "CORE-ES") %>% 
+  filter(ES_state != "GD") %>% 
+  filter(ES_state != "SHORT") %>% 
+  filter(GR_state == "GR-GD") %>% 
+  select(locus_tag) %>% 
+  as.list()
+GRGD <- GRGD$locus_tag
+
+TYGD <- CHPT3 %>% 
+  filter(ES_state != "CORE-ES") %>% 
+  filter(ES_state != "GD") %>% 
+  filter(ES_state != "SHORT") %>% 
+  filter(TY_state == "TY-GD") %>% 
+  select(locus_tag) %>% 
+  as.list()
+TYGD <- TYGD$locus_tag
+
+CONDGD_Venn <- list(TB_GD = TBGD, GR_GD = GRGD, TY_GD = TYGD)
+ggvenn(CONDGD_Venn)
+
+CHPT3 %>% 
+  filter(ES_state != "CORE-ES") %>% 
+  filter(ES_state != "GD") %>% 
+  filter(ES_state != "SHORT") %>% 
+  group_by(TB_state) %>% 
+  select(FUN) %>% 
+  table()
+
+CHPT3 %>% 
+  filter(ES_state != "CORE-ES") %>% 
+  filter(ES_state != "GD") %>% 
+  filter(ES_state != "SHORT") %>% 
+  group_by(GR_state) %>% 
+  select(FUN) %>% 
+  table()
+
+CHPT3 %>% 
+  filter(ES_state != "CORE-ES") %>% 
+  filter(ES_state != "GD") %>% 
+  filter(ES_state != "SHORT") %>% 
+  group_by(TY_state) %>% 
+  select(FUN) %>% 
+  table()
