@@ -1,32 +1,7 @@
-# TODO: Essentiality Function ####
-# tnseq <- function(locus_tags=NULL,NS_tnseq=NULL, WT_tnseq=NULL, NS_TraDIS_thresh="", WT_TraDIS_thresh="", length_perc=95, ES_diviser=2, GD_multiple=2){
-#   
-#   # Set default stares to NE
-#   states$locus_tags <- locus_tags
-#   states$states <- "NE"
-#   # Layer on the states 
-#   
-#   # ii in NS and WT below 1/2 the TraDIS thresholds
-#   ES$ES_state <- replace(x = ES$ES_state, ES$NS_ii < 0.05 & ES$WT_ii < 0.048, "CORE-ES")
-#   # ii in NS less than TraDIS and 2x WT TraDIS thresholds
-#   ES$ES_state <- replace(x = ES$ES_state, ES$NS_ii < 0.05 & ES$WT_ii > (0.048*2), "NS-ES")
-#   # ii in WT less than TraDIS and 2x NS TraDIS thresholds
-#   ES$ES_state <- replace(x = ES$ES_state, ES$NS_ii > (0.05*2) & ES$WT_ii < 0.048, "WT-ES")
-#   # 
-#   ES$ES_state <- replace(x = ES$ES_state, ES$NS_ii < 0.05 & ES$WT_ii <= (0.048*2) & ES$WT_ii >= 0.048, "GD")
-#   
-#   ES$ES_state <- replace(x = ES$ES_state, ES$NS_ii <= (0.05*2) & ES$NS_ii >= 0.05 & ES$WT_ii < 0.048 , "GD")
-#   
-#   ES$ES_state <- replace(x = ES$ES_state, ES$NS_ii <= (0.05*2) & ES$NS_ii >= 0.05 & ES$WT_ii <= 0.001, "WT-ES")
-#   
-#   ES$ES_state <- replace(x = ES$ES_state, ES$NS_ii <= 0.001 & ES$WT_ii <= (0.048*2) & ES$WT_ii >= 0.048, "NS-ES")
-#   
-#   return(states)
-# }
 
 ### Code for chapter 3. In vitro Tn-seq
 
-#setwd("~/Desktop/PhD/")
+#setwd("~/Desktop/PhD/") # Must be in /PhD for paths work
 set.seed(seed = 1953)
 
 library(tidyverse)
@@ -74,10 +49,10 @@ length_threshold <- 0.05
 
 ### 1. Compile insertion index summary tables for analysis. ###
 
-ES <- readTradis(wrkingdir = "~/projects/PhD/data/tradis/essential/")
-INVITRO <- readTradis(wrkingdir = "~/projects/PhD/data/tradis/in vitro/")
+ES <- readTradis(wrkingdir = "./data/tradis/essential/")
+INVITRO <- readTradis(wrkingdir = "./data/tradis/in vitro/")
 
-### 2. Compile Annotations Table ###
+### Compile Annotations Table ###
 # COGS <- read_tsv(file = "data/ref/R7A2020.eggNOG.tsv", col_names = F, trim_ws = T, comment = "#")
 # COGS <- COGS %>% rename(locus_tag = X1, gene = X6, COG = X21, CA = X22)
 # COGS <- COGS %>% select(locus_tag, gene, COG, CA)
@@ -91,12 +66,12 @@ INVITRO <- readTradis(wrkingdir = "~/projects/PhD/data/tradis/in vitro/")
 # rm(COGS)
 # rm(KEGG)
 
-### 2.1 Take Mannual Annotations from Old Analysis ###
-# NOTE: At this point the annotation table (ANNOT) was mannual curated. A Column "FUN" was created which
+### 2.1 Take Manual Annotations from Old Analysis ###
+# NOTE: At this point the annotation table (ANNOT) was manual curated. A Column "FUN" was created which
 #       selected the single best COG category for genes of interest (ES/GD/etc.) but not all neutral genes.
 #       Annotations were included for non protein features such as tRNAs as well. I've read in this table below.
 
-ANNOT <- read_csv(file = "~/projects/PhD/data/ref/MLR7A_2020.annotations.csv")
+ANNOT <- read_csv(file = "./data/ref/MLR7A_2020.annotations.csv")
 min_length <- round(quantile(ANNOT$gene_length, length_threshold))
                     
 ### 3. Update the traDIS insertion index summary tables with essentiality states based on the thresholds calculated from the traDIS analysis. ###
@@ -161,6 +136,7 @@ ES_plot_zoom <- ES %>% filter(ES$ES_state != "SHORT") %>%
   geom_hline(yintercept = 0.048) +
   geom_vline(xintercept = 0.05) + xlim(0,0.15) + ylim(0,0.15)
 ES_plot_zoom
+
 ggsave(plot = ES_plot_zoom, "~/projects/PhD/results/chapter 3 in vitro/ES.ins_index.zoom.pdf", width = 12, height = 8)
 
 ### 4. Update the traDIS insertion index summary tables for the conditionally essential states using similar rules to section 3. ###
@@ -219,6 +195,7 @@ TY_plot <- INVITRO %>% filter(INVITRO$TY_state != "SHORT") %>%
   geom_hline(yintercept = 0.018) +
   geom_vline(xintercept = 0.016) + xlim(0,0.1) + ylim(0,0.1)
 TY_plot
+
 ggsave(plot = TY_plot, "~/projects/PhD/results/chapter 3 in vitro/TY.ins_index.pdf", width = 12, height = 8)
 
 ###    GR States - GR_states
@@ -263,6 +240,7 @@ GR_plot <- INVITRO %>% filter(GR_state != "SHORT") %>%
   geom_hline(yintercept = 0.012) +
   geom_vline(xintercept = 0.015) + xlim(0,0.1) + ylim(0,0.1)
 GR_plot
+
 ggsave(plot = GR_plot, "~/projects/PhD/results/chapter 3 in vitro/GR.ins_index.pdf", width = 12, height = 8)
 
 ###    TB States - TB_states
@@ -307,15 +285,16 @@ TB_plot <- INVITRO %>% filter(TB_state != "SHORT") %>%
   geom_hline(yintercept = 0.015) +
   geom_vline(xintercept = 0.017) + xlim(0,0.1) + ylim(0,0.1)
 TB_plot
+
 ggsave(plot = TB_plot, "~/projects/PhD/results/chapter 3 in vitro/TB.ins_index.pdf", width = 12, height = 8)
 
 ### Merge the ES and INVITRO dataframes into CHPT3 dataframe ###
 CHPT3 <- ES %>% select(locus_tag, NS_ii, WT_ii, ES_state)
 CHPT3 <- left_join(INVITRO, CHPT3, "locus_tag")
 
-### 5. Update the essentiality states of ICE genes using reduced ii thresholds
+### 5. Update the essential states of ICE genes using reduced ii thresholds
 
-# ICE Essentiality States
+# ICE Essential States
 CHPT3$ICE_state <- "NE"
 CHPT3$ICE_state <- replace(x = CHPT3$ICE_state,
                            !CHPT3$ICESym, 
@@ -350,6 +329,7 @@ ICE_essential <- CHPT3 %>% filter(ICESym) %>%
   theme_minimal() + 
   geom_vline(xintercept = 0.025)
 ICE_essential
+
 ggsave(plot = ICE_essential,"~/projects/PhD/results/chapter 3 in vitro/ICE.ES.histogram.pdf", width = 12, height = 8)
 
 ICETY <- CHPT3 %>% filter(ICESym) %>% ggplot(aes(x=WT_ii, y=WTTY_ii, color=ICE_state)) + 
@@ -359,6 +339,7 @@ ICETY <- CHPT3 %>% filter(ICESym) %>% ggplot(aes(x=WT_ii, y=WTTY_ii, color=ICE_s
   geom_vline(xintercept = 0.025) +
   ylim(0,0.125)
 ICETY
+
 ggsave(plot = ICETY,"~/projects/PhD/results/chapter 3 in vitro/ICE.TY.ins_index.pdf", width = 12, height = 8)
 
 ICEGR <- CHPT3 %>% filter(ICESym) %>% ggplot(aes(x=WT_ii, y=WTGR_ii, color=ICE_state)) + 
@@ -368,6 +349,7 @@ ICEGR <- CHPT3 %>% filter(ICESym) %>% ggplot(aes(x=WT_ii, y=WTGR_ii, color=ICE_s
   geom_vline(xintercept = 0.025) +
   ylim(0,0.125)
 ICEGR
+
 ggsave(plot = ICEGR, "~/projects/PhD/results/chapter 3 in vitro/ICE.GR.ins_index.pdf", width = 12, height = 8) 
 
 ICETB <- CHPT3 %>% filter(ICESym) %>% ggplot(aes(x=WT_ii, y=WTTB_ii, color=ICE_state)) + 
@@ -377,18 +359,23 @@ ICETB <- CHPT3 %>% filter(ICESym) %>% ggplot(aes(x=WT_ii, y=WTTB_ii, color=ICE_s
   geom_vline(xintercept = 0.025) +
   ylim(0,0.125)
 ICETB
+
 ggsave(plot = ICETB, "~/projects/PhD/results/chapter 3 in vitro/ICE.TY.ins_index.pdf", width = 12, height = 8)
 
 ### Summary Plots ###
 invitro_plot <- ggarrange(TB_plot, GR_plot, TY_plot, nrow = 1, align = "h", legend = "none")
 invitro_plot
+
 ggsave(plot = invitro_plot, "~/projects/PhD/results/chapter 3 in vitro/invitro.ins_index.pdf", bg = "white")
 
 essential_plot <- ggarrange(ES_plot, ES_plot_zoom, align = "h", legend = "none")
 essential_plot
+
 ggsave(plot = essential_plot, "~/projects/PhD/results/chapter 3 in vitro/essential.ins_index.pdf", bg = "white")
 
 ICE.Panel <- ggarrange(ICETY, ICEGR, ICETB, nrow =1 , common.legend = T)
+ICE.Panel
+
 ggsave(plot = ICE.Panel, "~/projects/PhD/results/chapter 3 in vitro/ICE.conditional.ins_index.pdf", bg = "white")
 
 #Update the Conditionally Essential states to have CORE-ES override
@@ -541,3 +528,6 @@ CHPT3 %>%
   group_by(TY_state) %>% 
   select(FUN) %>% 
   table()
+
+
+
